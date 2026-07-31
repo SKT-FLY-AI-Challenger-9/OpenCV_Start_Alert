@@ -69,6 +69,22 @@ def _remove_small_blobs(mask, min_area):
     return clean
 
 
+def _roi_to_pixels(frame_shape, roi):
+    """정규화 ROI (x1, y1, x2, y2), 0~1 -> 절대 픽셀 슬라이스 좌표 (x1, y1, x2, y2).
+
+    config.py의 PROFILES[...]['preprocess']['roi'] 표기와 동일한 정규화 좌표를 받는다.
+    resize_width가 영상마다 달라도(day/night_car=640, night_nocar=500) 같은 ROI 비율을
+    그대로 재사용할 수 있도록 절대 픽셀이 아닌 비율로 통일했다.
+    """
+    h, w = frame_shape[:2]
+    x1, y1, x2, y2 = roi
+    px1 = max(0, min(w, int(round(x1 * w))))
+    py1 = max(0, min(h, int(round(y1 * h))))
+    px2 = max(0, min(w, int(round(x2 * w))))
+    py2 = max(0, min(h, int(round(y2 * h))))
+    return px1, py1, px2, py2
+
+
 def detect_motion(prev, cur, mode="day", roi=None, return_mask=False):
     """이전 프레임(prev)과 현재 프레임(cur)의 차영상으로 움직임을 검출한다.
 
@@ -80,8 +96,9 @@ def detect_motion(prev, cur, mode="day", roi=None, return_mask=False):
         연속한 두 프레임. BGR 컬러 / 그레이 모두 허용.
     mode : "day" | "night"
         MOTION_CONFIG 에서 사용할 파라미터셋.
-    roi : (x, y, w, h) | None
-        지정하면 해당 영역만 잘라 분석 (연산량 절감 + 오탐 감소).
+    roi : (x1, y1, x2, y2) | None
+        0~1로 정규화된 좌표. config.py의 PROFILES[...]['preprocess']['roi']와
+        동일한 형식이며, 지정하면 해당 영역만 잘라 분석한다 (연산량 절감 + 오탐 감소).
     return_mask : bool
         True면 (pixels, mask) 튜플을, False면 pixels(int)만 반환.
         ※ 팀 인터페이스 계약은 `pixels = detect_motion(prev, cur)` 이므로
@@ -95,9 +112,9 @@ def detect_motion(prev, cur, mode="day", roi=None, return_mask=False):
     cfg = MOTION_CONFIG[mode]
 
     if roi is not None:
-        x, y, w, h = roi
-        prev = prev[y:y + h, x:x + w]
-        cur = cur[y:y + h, x:x + w]
+        x1, y1, x2, y2 = _roi_to_pixels(prev.shape, roi)
+        prev = prev[y1:y2, x1:x2]
+        cur = cur[y1:y2, x1:x2]
 
     gray_prev = _to_gray_blur(prev, cfg["blur_ksize"])
     gray_cur = _to_gray_blur(cur, cfg["blur_ksize"])
@@ -128,8 +145,8 @@ def detect_taillight_mask(frame, roi=None):
     ----------
     frame : np.ndarray
         BGR 컬러 프레임.
-    roi : (x, y, w, h) | None
-        지정하면 해당 영역만 잘라 분석.
+    roi : (x1, y1, x2, y2) | None
+        0~1로 정규화된 좌표 (config.py와 동일 형식). 지정하면 해당 영역만 잘라 분석.
 
     Returns
     -------
@@ -137,8 +154,8 @@ def detect_taillight_mask(frame, roi=None):
         후미등(빨강) 영역이 흰색(255)인 이진 마스크.
     """
     if roi is not None:
-        x, y, w, h = roi
-        frame = frame[y:y + h, x:x + w]
+        x1, y1, x2, y2 = _roi_to_pixels(frame.shape, roi)
+        frame = frame[y1:y2, x1:x2]
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
