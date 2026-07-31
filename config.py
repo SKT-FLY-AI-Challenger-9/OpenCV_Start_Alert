@@ -1,8 +1,8 @@
 """
-Project-wide configuration for OpenCV_Start_Alert.
+OpenCV_Start_Alert 프로젝트 전역 설정.
 
-R3 uses the LIGHT section below. Values are intentionally grouped here so R5/R6
-can tune thresholds per video without changing detection code.
+아래 LIGHT 섹션은 R3가 사용한다. 검출 코드를 건드리지 않고도 R5/R6가
+영상별로 임계값을 튜닝할 수 있도록 값을 이 파일에 모아뒀다.
 """
 
 CONFIG = {
@@ -10,8 +10,8 @@ CONFIG = {
     "profiles": {
         "day": {
             "light": {
-                # (x, y, w, h) as ratios of the full frame.
-                # Adjust this to the traffic signal area once final videos are fixed.
+                # (x, y, w, h), 전체 프레임 대비 비율(0~1).
+                # 최종 영상이 확정되면 신호등 위치에 맞게 조정할 것.
                 "roi": (0.35, 0.00, 0.30, 0.45),
                 "min_area": 35,
                 "min_ratio": 0.0015,

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-R3 - Traffic light color detection.
+R3 - 신호등 색 검출 담당 (Traffic light color detection)
 
-Public API:
+공개 API:
     detect_light(frame) -> "RED" / "GREEN" / None
 
-The detector uses HSV masks because hue separates red/green more reliably than
-raw BGR values. Red wraps around the HSV hue boundary, so it is represented by
-two ranges and merged into one mask.
+BGR 원본값보다 Hue가 빨강/초록을 더 안정적으로 구분하기 때문에 HSV 마스크를 쓴다.
+빨강은 HSV Hue 경계(0도)를 걸쳐 있어 두 구간으로 나눠 검출한 뒤 하나의 마스크로 합친다.
 """
 
 from __future__ import annotations
@@ -26,7 +25,7 @@ except ImportError:
 
 @dataclass(frozen=True)
 class LightEvidence:
-    """Debug information that R4/R6 can log while tuning."""
+    """R4/R6가 튜닝하면서 로그로 남길 디버그 정보."""
 
     color: str | None
     red_area: int
@@ -60,16 +59,16 @@ def detect_light(
     return_evidence: bool = False,
 ) -> str | None | tuple[str | None, LightEvidence]:
     """
-    Detect the dominant traffic light color in a frame.
+    프레임에서 가장 우세한 신호등 색을 검출한다.
 
     Args:
-        frame: BGR image from OpenCV.
-        profile: Optional CONFIG profile name, e.g. "day" or "night".
-        light_config: Optional direct override for light thresholds.
-        return_evidence: When True, return (color, LightEvidence).
+        frame: OpenCV의 BGR 이미지.
+        profile: CONFIG 프로필 이름 (예: "day", "night"). 선택사항.
+        light_config: 신호등 임계값을 직접 덮어쓸 때 사용. 선택사항.
+        return_evidence: True면 (color, LightEvidence) 튜플로 반환.
 
     Returns:
-        "RED", "GREEN", or None. With return_evidence=True, returns a tuple.
+        "RED", "GREEN", 또는 None. return_evidence=True면 튜플로 반환한다.
     """
 
     if frame is None or frame.size == 0:
