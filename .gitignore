@@ -1,23 +1,5 @@
-# Python
+videos/
+outputs/
 __pycache__/
 *.pyc
-.venv/
-venv/
-env/
-*.egg-info/
-
-# OS
 .DS_Store
-Thumbs.db
-
-# Editors
-.vscode/
-.idea/
-
-# Input videos (제공 영상 3종은 용량이 크므로 커밋하지 않음)
-videos/*
-!videos/.gitkeep
-
-# 실행 결과물 (결과 영상, 캡처, 로그)
-outputs/*
-!outputs/.gitkeep
