@@ -11,7 +11,7 @@ OpenCV_Start_Alert/
 ├── .gitignore               # videos/, outputs/, __pycache__ 등 제외
 ├── videos/                  # 제공 영상 3종 (용량 커서 git 미포함)
 │   ├── Day_Car.mp4
-│   ├── Nigt_Car.mp4
+│   ├── Night_Car.mp4
 │   └── Night_Nocar.mp4
 ├── outputs/                 # 실행 결과 영상·캡처·로그 (git 미포함)
 ├── main.py                  # R5 — 전체 파이프라인 조립, 영상 선택 실행
@@ -27,6 +27,6 @@ OpenCV_Start_Alert/
 ```
 
 - **역할 = 파일 1:1 매핑**: R1~R4는 각자 파일 하나만 책임지므로 서로 코드 완성을 기다리지 않고 병렬 개발이 가능합니다 (더미 함수부터 시작).
-- **config.py로 설정 통합**: ROI·임계값·HSV 범위를 코드 곳곳에 하드코딩하지 않고, `video1_day` / `video2_night` / `video3_night_signal` 프로필로 분리해 `main.py`에서 선택해 사용합니다.
+- **config.py로 설정 통합**: ROI·임계값·HSV 범위를 코드 곳곳에 하드코딩하지 않고, `day` / `night` 프로필로 분리해 `main.py`에서 선택해 사용합니다. (영상별 `video_path`·`motion`·`decision` 섹션은 아직 통합 전이라 팀 논의 후 채울 예정)
 - **videos/, outputs/는 데이터 폴더**: 용량 큰 원본 영상과 실행 결과물은 `.gitignore`로 제외해 레포를 가볍게 유지합니다.
 - **night_tuning.py는 선택**: 5인 팀이면 생략하고 R2·R3가 야간 파라미터를 직접 관리해도 됩니다.

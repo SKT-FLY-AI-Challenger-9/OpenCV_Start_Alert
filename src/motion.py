@@ -70,18 +70,19 @@ def _remove_small_blobs(mask, min_area):
 
 
 def _roi_to_pixels(frame_shape, roi):
-    """정규화 ROI (x1, y1, x2, y2), 0~1 -> 절대 픽셀 슬라이스 좌표 (x1, y1, x2, y2).
+    """정규화 ROI (x, y, w, h), 0~1 -> 절대 픽셀 슬라이스 좌표 (x1, y1, x2, y2).
 
-    config.py의 PROFILES[...]['preprocess']['roi'] 표기와 동일한 정규화 좌표를 받는다.
-    resize_width가 영상마다 달라도(day/night_car=640, night_nocar=500) 같은 ROI 비율을
-    그대로 재사용할 수 있도록 절대 픽셀이 아닌 비율로 통일했다.
+    (x, y)는 좌상단 시작 비율, (w, h)는 폭/높이 비율이다 (두 꼭짓점이 아님).
+    config.py CONFIG['profiles'][mode]['light']['roi']와 src/light.py의 _crop_roi()가
+    쓰는 표기와 동일한 규약으로 맞췄다. 해상도가 달라져도(day/night_car=640,
+    night_nocar=500) 같은 비율을 그대로 재사용할 수 있다.
     """
     h, w = frame_shape[:2]
-    x1, y1, x2, y2 = roi
-    px1 = max(0, min(w, int(round(x1 * w))))
-    py1 = max(0, min(h, int(round(y1 * h))))
-    px2 = max(0, min(w, int(round(x2 * w))))
-    py2 = max(0, min(h, int(round(y2 * h))))
+    x, y, rw, rh = roi
+    px1 = max(0, min(w, int(round(x * w))))
+    py1 = max(0, min(h, int(round(y * h))))
+    px2 = max(0, min(w, int(round((x + rw) * w))))
+    py2 = max(0, min(h, int(round((y + rh) * h))))
     return px1, py1, px2, py2
 
 
@@ -96,9 +97,10 @@ def detect_motion(prev, cur, mode="day", roi=None, return_mask=False):
         연속한 두 프레임. BGR 컬러 / 그레이 모두 허용.
     mode : "day" | "night"
         MOTION_CONFIG 에서 사용할 파라미터셋.
-    roi : (x1, y1, x2, y2) | None
-        0~1로 정규화된 좌표. config.py의 PROFILES[...]['preprocess']['roi']와
-        동일한 형식이며, 지정하면 해당 영역만 잘라 분석한다 (연산량 절감 + 오탐 감소).
+    roi : (x, y, w, h) | None
+        0~1로 정규화된 좌표 (좌상단 시작 비율 + 폭/높이 비율). config.py 및
+        src/light.py의 _crop_roi()와 동일한 형식이며, 지정하면 해당 영역만
+        잘라 분석한다 (연산량 절감 + 오탐 감소).
     return_mask : bool
         True면 (pixels, mask) 튜플을, False면 pixels(int)만 반환.
         ※ 팀 인터페이스 계약은 `pixels = detect_motion(prev, cur)` 이므로
@@ -145,8 +147,9 @@ def detect_taillight_mask(frame, roi=None):
     ----------
     frame : np.ndarray
         BGR 컬러 프레임.
-    roi : (x1, y1, x2, y2) | None
-        0~1로 정규화된 좌표 (config.py와 동일 형식). 지정하면 해당 영역만 잘라 분석.
+    roi : (x, y, w, h) | None
+        0~1로 정규화된 좌표 (좌상단 시작 비율 + 폭/높이 비율, config.py와 동일 형식).
+        지정하면 해당 영역만 잘라 분석.
 
     Returns
     -------
