@@ -3,3 +3,6 @@ outputs/
 __pycache__/
 *.pyc
 .DS_Store
+
+# YOLO 가중치 (자동 다운로드되므로 커밋하지 않는다)
+*.pt

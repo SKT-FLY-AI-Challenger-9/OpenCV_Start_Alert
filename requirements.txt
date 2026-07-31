@@ -1,2 +1,6 @@
 opencv-python
 numpy
+
+# 선택 심화 (src/vehicle_yolo.py - YOLO 자동 ROI).
+# 없어도 파이프라인은 config.py 의 수동 ROI 로 그대로 동작한다.
+ultralytics
