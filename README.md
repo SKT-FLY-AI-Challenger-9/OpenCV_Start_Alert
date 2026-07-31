@@ -10,9 +10,9 @@ OpenCV_Start_Alert/
 ├── requirements.txt        # opencv-python, numpy
 ├── .gitignore               # videos/, outputs/, __pycache__ 등 제외
 ├── videos/                  # 제공 영상 3종 (용량 커서 git 미포함)
-│   ├── video1_day.mp4
-│   ├── video2_night.mp4
-│   └── video3_night_signal.mp4
+│   ├── Day_Car.mp4
+│   ├── Nigt_Car.mp4
+│   └── Night_Nocar.mp4
 ├── outputs/                 # 실행 결과 영상·캡처·로그 (git 미포함)
 ├── main.py                  # R5 — 전체 파이프라인 조립, 영상 선택 실행
 ├── config.py                # R5(+R6) — CONFIG 한 곳에 모음: ROI, 임계값, HSV 범위,
